@@ -71,6 +71,10 @@
                 alert('电话号码不符合格式！');
                 return;
             }
+            if (phoneExists(phone)) {
+                alert('该电话号码已被注册!');
+                return;
+            }
 
             const username = document.getElementById('reg_username').value;
             const password = document.getElementById('reg_password').value;
@@ -86,10 +90,15 @@
                 return;
             }
 
-            localStorage.setItem(username, JSON.stringify({phone: phone, password: password}));
+            // 保存用户信息，使用电话号码作为唯一标识
+            localStorage.setItem(phone, JSON.stringify({username: username, password: password}));
             alert('注册成功!');
             document.querySelector('.register-form').style.display = 'none';
             document.querySelector('.login-form').style.display = 'block';
+        }
+
+        function phoneExists(phone) {
+            return localStorage.getItem(phone) !== null;
         }
 
         function validatePhone(phone) {
