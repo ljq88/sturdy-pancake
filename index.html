@@ -51,27 +51,26 @@
             text-decoration: underline;
         }
         .iframe-container {
-            width: 100%; 
+            width: 80%; 
             height: 80%; 
             position: fixed; 
             top: 10%; 
             left: 10%; 
-            background-color: white;
             overflow: hidden;
+            display: none; /* Initially hide the iframe */
+            background-color: white;
         }
         iframe {
-            width: calc(100% + 200px);
+            width: calc(100% + 200px); /* Extra width to be covered by the cover */
             height: 100%;
-            position: relative;
-            left: -200px; /* Shift iframe to the left to hide the rightmost part */
         }
         .cover {
-            position: fixed;
-            top: 10%; 
-            right: 10%; 
-            width: 200px; 
-            height: 80%;
-            background-color: #ccc; /* Same as the page background */
+            width: 200px;
+            height: 100%;
+            background-color: #ccc;
+            position: absolute;
+            right: 0; /* Positioned to cover the right side of the iframe */
+            display: none; /* Initially hidden */
         }
     </style>
 </head>
@@ -90,9 +89,9 @@
         </div>
     </div>
     <div class="iframe-container" id="iframe-container">
-        <iframe id="site-iframe" src=""></iframe>
+        <iframe id="site-iframe"></iframe>
+        <div class="cover" id="cover"></div>
     </div>
-    <div class="cover"></div> <!-- 遮挡层 -->
 
     <script>
         function showRegister() {
@@ -117,12 +116,14 @@
         function showSite(isFirstLogin) {
             const iframe = document.getElementById('site-iframe');
             const container = document.getElementById('iframe-container');
+            const cover = document.getElementById('cover');
             if (isFirstLogin) {
                 iframe.src = 'https://www.midjourny.cn/home/#/mine';
             } else {
                 iframe.src = 'https://www.midjourny.cn/home/#/mj';
             }
             container.style.display = 'block';
+            cover.style.display = 'block'; // Display the cover when iframe is shown
         }
 
         function register() {
@@ -151,7 +152,7 @@
             }
 
             localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password}));
-            localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
+            localStorage.setItem(phone, 'registered');
             alert('注册成功！');
             document.querySelector('.register-form').style.display = 'none';
             document.querySelector('.login-form').style.display = 'block';
@@ -167,9 +168,9 @@
             const telecom = '(133|153|180|181|189|177|1700)[0-9]{7}';
             const reMobile = new RegExp(mobile);
             const reUnion = new RegExp(union);
-            the reTelecom = new RegExp(telecom);
+            const reTelecom = new RegExp(telecom);
 
-            return reMobile.test(phone) || reUnion.test(phone) or reTelecom.test(phone);
+            return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
         }
     </script>
 </body>
