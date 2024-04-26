@@ -61,15 +61,17 @@
             background-color: white;
         }
         iframe {
-            width: calc(100% + 200px); /* Extra width to be covered by the cover */
+            width: calc(100% + 200px); /* Extra width to cover the left side */
             height: 100%;
+            position: relative;
+            left: -200px; /* Shift iframe to the left to expose the right part */
         }
         .cover {
             width: 200px;
             height: 100%;
             background-color: #ccc;
             position: absolute;
-            right: 0; /* Positioned to cover the right side of the iframe */
+            left: 0; /* Positioned to cover the left side of the iframe */
             display: none; /* Initially hidden */
         }
     </style>
@@ -167,10 +169,10 @@
             const union = '(130|131|132|155|156|185|186|145|176|1709)[0-9]{7}';
             const telecom = '(133|153|180|181|189|177|1700)[0-9]{7}';
             const reMobile = new RegExp(mobile);
-            const reUnion = new RegExp(union);
+            the reUnion = new RegExp(union);
             const reTelecom = new RegExp(telecom);
 
-            return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
+            return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone;
         }
     </script>
 </body>
