@@ -63,8 +63,8 @@
         iframe {
             width: calc(100% + 70px); /* 增加宽度以补偿裁剪 */
             height: calc(100% + 40px); /* 增加高度以补偿裁剪 */
-            margin-left: -70px; /* 向左偏移200px */
-            margin-top: -40px; /* 向上偏移40px */
+            margin-left: -70px; /* 向左偏移 */
+            margin-top: -40px; /* 向上偏移 */
         }
         .mirror-site {
             clip-path: inset(40px 0px 0px 70px);
@@ -118,13 +118,13 @@
             if (user !== null && user.password === password) {
                 const isFirstLogin = localStorage.getItem(username + '_login') === null;
                 localStorage.setItem(username + '_login', 'visited');
-                showSite(isFirstLogin);
+                showSite(isFirstLogin, username);
             } else {
                 alert('用户名或密码错误!');
             }
         }
 
-        function showSite(isFirstLogin) {
+        function showSite(isFirstLogin, username) {
             const iframe = document.getElementById('site-iframe');
             const container = document.getElementById('iframe-container');
             if (isFirstLogin) {
@@ -133,6 +133,35 @@
                 iframe.src = 'https://www.midjourny.cn/home/#/mj';
             }
             container.style.display = 'block';
+
+            // Initialize or load user state
+            var userState = localStorage.getItem(username + '_state');
+            if (userState === null) {
+                userState = { r: 1, f: 1 };
+                localStorage.setItem(username + '_state', JSON.stringify(userState));
+            } else {
+                userState = JSON.parse(userState);
+            }
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    const button = document.getElementById('el-id-4193-48'); // Example button
+                    if (button && button.name === "普通模式") {
+                        if (userState.r === 0) {
+                            alert('无法执行此操作，因为 r = 0');
+                            return;
+                        } else if (userState.f === 0) {
+                            alert('无法执行此操作，因为 f = 0');
+                            return;
+                        } else {
+                            userState.r--;
+                            userState.f--;
+                            localStorage.setItem(username + '_state', JSON.stringify(userState));
+                            alert('操作成功！');
+                        }
+                    }
+                }
+            });
         }
 
         function register() {
@@ -160,7 +189,7 @@
                 return;
             }
 
-            localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password}));
+            localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password, r: 1, f: 1}));
             localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
             alert('注册成功！');
             document.querySelector('.register-form').style.display = 'none';
@@ -181,29 +210,6 @@
 
             return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
         }
-
-        // 添加按下Enter键的事件监听器
-        document.addEventListener('keydown', function(event) {
-            const username = document.getElementById('username').value;
-            const user = JSON.parse(localStorage.getItem(username));
-            const enterKey = 13;
-
-            if (event.keyCode === enterKey && user !== null && user.r === 1 && user.f === 1) {
-                const buttonName = document.getElementById('el-id-4193-48').getAttribute('Name');
-                if (buttonName === '普通模式') {
-                    if (user.r === 0) {
-                        return false;
-                    } else if (user.f === 0) {
-                        return false;
-                    } else {
-                        // 执行成功按下Enter键后的逻辑
-                        user.r--;
-                        user.f--;
-                        localStorage.setItem(username, JSON.stringify(user));
-                    }
-                }
-            }
-        });
     </script>
 </body>
 </html>
