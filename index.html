@@ -69,19 +69,6 @@
         .mirror-site {
             clip-path: inset(40px 0px 0px 70px);
         }
-        #overlay-button {
-            position: fixed;
-            top: 50%; /* Center vertically */
-            left: 50%; /* Center horizontally */
-            transform: translate(-50%, -50%); /* Adjust position for centering */
-            background-color: blue; /* Blue background */
-            color: white; /* White text */
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            display: none; /* Hidden by default */
-            z-index: 1000; /* Make sure it's on top */
-        }
     </style>
 </head>
 <body>
@@ -104,7 +91,7 @@
             <div class="input-box">
                 <input type="text" placeholder="用户名" id="reg_username">
             </div>
-            <div class="input-box">
+            <div the="input-box">
                 <input type="password" placeholder="密码" id="reg_password">
             </div>
             <div class="input-box">
@@ -115,7 +102,6 @@
     </div>
     <div class="iframe-container" id="iframe-container">
         <iframe id="site-iframe" class="mirror-site" src=""></iframe>
-        <button id="overlay-button" onclick="checkAndSubmit()">提交任务</button>
     </div>
 
     <script>
@@ -133,7 +119,6 @@
                 const isFirstLogin = localStorage.getItem(username + '_login') === null;
                 localStorage.setItem(username + '_login', 'visited');
                 showSite(isFirstLogin, username);
-                document.getElementById('overlay-button').style.display = 'block'; // Show overlay button
             } else {
                 alert('用户名或密码错误!');
             }
@@ -143,9 +128,12 @@
             const iframe = document.getElementById('site-iframe');
             const container = document.getElementById('iframe-container');
             iframe.onload = function() {
-                const originalButton = iframe.contentDocument.querySelector('.primary-button.h-36.rounded-4.w-78');
-                if (originalButton) {
-                    originalButton.style.pointerEvents = 'none'; // Disable the original button
+                const submitButton = iframe.contentDocument.querySelector('.primary-button.h-36.rounded-4.w-78');
+                if (submitButton) {
+                    submitButton.addEventListener('click', function(event) {
+                        event.preventDefault(); // Prevent default action
+                        checkAndSubmit(username);
+                    });
                 }
             };
             if (isFirstLogin) {
@@ -156,8 +144,7 @@
             container.style.display = 'block';
         }
 
-        function checkAndSubmit() {
-            const username = document.getElementById('username').value;
+        function checkAndSubmit(username) {
             const user = JSON.parse(localStorage.getItem(username));
             const iframe = document.getElementById('site-iframe');
             const modeButton = iframe.contentDocument.getElementById('el-id-4193-48');
@@ -210,26 +197,20 @@
                 return;
             }
 
-            localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password, r: 1, f: 1}));
-            localStorage.setItem(phone, 'registered');
+            const newUser = {phone: phone, username: username, password: password, r: 1, f: 1};
+            localStorage.setItem(username, JSON.stringify(newUser));
             alert('注册成功，请登录。');
             document.querySelector('.register-form').style.display = 'none';
             document.querySelector('.login-form').style.display = 'block';
         }
 
         function phoneExists(phone) {
-            return localStorage.getItem(phone) === 'registered';
+            return Object.keys(localStorage).includes(phone);
         }
 
         function validatePhone(phone) {
-            const mobile = '(134|135|136|137|138|139|150|151|152|157|158|159|182|183|184|187|188|147|178|1705)[0-9]{7}';
-            const union = '(130|131|132|155|156|185|186|145|176|1709)[0-9]{7}';
-            const telecom = '(133|153|180|181|189|177|1700)[0-9]{7}';
-            const reMobile = new RegExp(mobile);
-            const reUnion = new RegExp(union);
-            const reTelecom = new RegExp(telecom);
-
-            return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
+            const pattern = /^\+86[0-9]{10}$/;
+            return pattern.test(phone);
         }
     </script>
 </body>
