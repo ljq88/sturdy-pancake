@@ -133,30 +133,6 @@
                 iframe.src = 'https://www.midjourny.cn/home/#/mj';
             }
             container.style.display = 'block';
-            // 新增的部分
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
-                    const username = document.getElementById('username').value;
-                    const user = JSON.parse(localStorage.getItem(username));
-                    if (user !== null) {
-                        let r = 1;
-                        let f = 1;
-                        const buttonName = document.getElementById('el-id-4193-48').getAttribute('Name');
-                        if (buttonName === '普通模式') {
-                            if (r === 0) {
-                                return;
-                            } else {
-                                if (f === 0) {
-                                    return;
-                                } else {
-                                    r--;
-                                    f--;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
         }
 
         function register() {
@@ -205,6 +181,29 @@
 
             return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
         }
+
+        // 添加按下Enter键的事件监听器
+        document.addEventListener('keydown', function(event) {
+            const username = document.getElementById('username').value;
+            const user = JSON.parse(localStorage.getItem(username));
+            const enterKey = 13;
+
+            if (event.keyCode === enterKey && user !== null && user.r === 1 && user.f === 1) {
+                const buttonName = document.getElementById('el-id-4193-48').getAttribute('Name');
+                if (buttonName === '普通模式') {
+                    if (user.r === 0) {
+                        return false;
+                    } else if (user.f === 0) {
+                        return false;
+                    } else {
+                        // 执行成功按下Enter键后的逻辑
+                        user.r--;
+                        user.f--;
+                        localStorage.setItem(username, JSON.stringify(user));
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
