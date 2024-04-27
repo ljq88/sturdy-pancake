@@ -58,20 +58,20 @@
             left: 10%; 
             display: none; 
             background-color: white;
-            overflow: hidden;
+            overflow: hidden; /* 确保iframe外的内容被隐藏 */
         }
         iframe {
-            width: calc(100% + 70px);
-            height: calc(100% + 40px);
-            margin-left: -70px;
-            margin-top: -40px;
+            width: calc(100% + 70px); /* 增加宽度以补偿裁剪 */
+            height: calc(100% + 40px); /* 增加高度以补偿裁剪 */
+            margin-left: -70px; /* 向左偏移200px */
+            margin-top: -40px; /* 向上偏移40px */
         }
         .mirror-site {
             clip-path: inset(40px 0px 0px 70px);
         }
         #submit-btn {
             position: fixed;
-            top: 40%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background-color: blue;
@@ -79,7 +79,7 @@
             padding: 10px 20px;
             border: none;
             cursor: pointer;
-            display: none;
+            display: none; /* Initially hidden */
         }
     </style>
 </head>
@@ -179,7 +179,7 @@
             localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password}));
             localStorage.setItem(phone, 'registered');
             alert('注册成功！');
-            document.querySelector('.register-form').style.display = 'none';
+            document.querySelector('.register-form').style.display = 'none;
             document.querySelector('.login-form').style.display = 'block';
         }
 
