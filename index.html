@@ -63,8 +63,8 @@
         iframe {
             width: calc(100% + 70px); /* 增加宽度以补偿裁剪 */
             height: calc(100% + 40px); /* 增加高度以补偿裁剪 */
-            margin-left: -70px; /* 向左偏移 */
-            margin-top: -40px; /* 向上偏移 */
+            margin-left: -70px; /* 向左偏移70px */
+            margin-top: -40px; /* 向上偏移40px */
         }
         .mirror-site {
             clip-path: inset(40px 0px 0px 70px);
@@ -105,6 +105,24 @@
     </div>
 
     <script>
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const user = JSON.parse(localStorage.getItem(document.getElementById('username').value));
+                if (user && user.r > 0 && user.f > 0) {
+                    const button = document.getElementById('el-id-4193-48');
+                    if (button && button.name === '普通模式') {
+                        if (user.r === 0 || user.f === 0) {
+                            alert('无法执行！');
+                        } else {
+                            user.r -= 1;
+                            user.f -= 1;
+                            localStorage.setItem(document.getElementById('username').value, JSON.stringify(user));
+                        }
+                    }
+                }
+            }
+        });
+
         function showRegister() {
             document.querySelector('.login-form').style.display = 'none';
             document.querySelector('.register-form').style.display = 'block';
@@ -118,13 +136,13 @@
             if (user !== null && user.password === password) {
                 const isFirstLogin = localStorage.getItem(username + '_login') === null;
                 localStorage.setItem(username + '_login', 'visited');
-                showSite(isFirstLogin, username);
+                showSite(isFirstLogin);
             } else {
                 alert('用户名或密码错误!');
             }
         }
 
-        function showSite(isFirstLogin, username) {
+        function showSite(isFirstLogin) {
             const iframe = document.getElementById('site-iframe');
             const container = document.getElementById('iframe-container');
             if (isFirstLogin) {
@@ -133,35 +151,6 @@
                 iframe.src = 'https://www.midjourny.cn/home/#/mj';
             }
             container.style.display = 'block';
-
-            // Initialize or load user state
-            var userState = localStorage.getItem(username + '_state');
-            if (userState === null) {
-                userState = { r: 1, f: 1 };
-                localStorage.setItem(username + '_state', JSON.stringify(userState));
-            } else {
-                userState = JSON.parse(userState);
-            }
-
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
-                    const button = document.getElementById('el-id-4193-48'); // Example button
-                    if (button && button.name === "普通模式") {
-                        if (userState.r === 0) {
-                            alert('无法执行此操作，因为 r = 0');
-                            return;
-                        } else if (userState.f === 0) {
-                            alert('无法执行此操作，因为 f = 0');
-                            return;
-                        } else {
-                            userState.r--;
-                            userState.f--;
-                            localStorage.setItem(username + '_state', JSON.stringify(userState));
-                            alert('操作成功！');
-                        }
-                    }
-                }
-            });
         }
 
         function register() {
@@ -190,7 +179,7 @@
             }
 
             localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password, r: 1, f: 1}));
-            localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
+            localStorage.setItem(phone, 'registered');
             alert('注册成功！');
             document.querySelector('.register-form').style.display = 'none';
             document.querySelector('.login-form').style.display = 'block';
@@ -206,7 +195,7 @@
             const telecom = '(133|153|180|181|189|177|1700)[0-9]{7}';
             const reMobile = new RegExp(mobile);
             const reUnion = new RegExp(union);
-            const reTelecom = new RegExp(telecom);
+            the reTelecom = new RegExp(telecom);
 
             return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
         }
