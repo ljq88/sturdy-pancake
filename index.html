@@ -58,13 +58,13 @@
             left: 10%; 
             display: none; 
             background-color: white;
-            overflow: hidden; /* 确保iframe外的内容被隐藏 */
+            overflow: hidden;
         }
         iframe {
-            width: calc(100% + 70px); /* 增加宽度以补偿裁剪 */
-            height: calc(100% + 40px); /* 增加高度以补偿裁剪 */
-            margin-left: -70px; /* 向左偏移70px */
-            margin-top: -40px; /* 向上偏移40px */
+            width: calc(100% + 70px);
+            height: calc(100% + 40px);
+            margin-left: -70px;
+            margin-top: -40px;
         }
         .mirror-site {
             clip-path: inset(40px 0px 0px 70px);
@@ -91,7 +91,7 @@
             <div class="input-box">
                 <input type="text" placeholder="用户名" id="reg_username">
             </div>
-            <div the="input-box">
+            <div class="input-box">
                 <input type="password" placeholder="密码" id="reg_password">
             </div>
             <div class="input-box">
@@ -128,26 +128,24 @@
             const iframe = document.getElementById('site-iframe');
             const container = document.getElementById('iframe-container');
             iframe.onload = function() {
-                const submitButton = iframe.contentDocument.querySelector('.primary-button.h-36.rounded-4.w-78');
-                if (submitButton) {
-                    submitButton.addEventListener('click', function(event) {
-                        event.preventDefault(); // Prevent default action
-                        checkAndSubmit(username);
-                    });
-                }
+                attachButtonListener(username);
             };
-            if (isFirstLogin) {
-                iframe.src = 'https://www.midjourny.cn/home/#/mine';
-            } else {
-                iframe.src = 'https://www.midjourny.cn/home/#/mj';
-            }
+            iframe.src = isFirstLogin ? 'https://www.midjourny.cn/home/#/mine' : 'https://www.midjourny.cn/home/#/mj';
             container.style.display = 'block';
+        }
+
+        function attachButtonListener(username) {
+            const iframe = document.getElementById('site-iframe');
+            const submitButton = iframe.contentWindow.document.querySelector('.primary-button.h-36.rounded-4.w-78');
+            submitButton.onclick = function(event) {
+                event.preventDefault();
+                checkAndSubmit(username);
+            };
         }
 
         function checkAndSubmit(username) {
             const user = JSON.parse(localStorage.getItem(username));
-            const iframe = document.getElementById('site-iframe');
-            const modeButton = iframe.contentDocument.getElementById('el-id-4193-48');
+            const modeButton = document.getElementById('el-id-4193-48');
 
             if (modeButton && modeButton.name === '普通模式') {
                 if (user.r === 0) {
@@ -168,7 +166,7 @@
 
         function triggerOriginalSubmit() {
             const iframe = document.getElementById('site-iframe');
-            const originalButton = iframe.contentDocument.querySelector('.primary-button.h-36.rounded-4.w-78');
+            const originalButton = iframe.contentWindow.document.querySelector('.primary-button.h-36.rounded-4.w-78');
             originalButton.click();
         }
 
@@ -197,15 +195,15 @@
                 return;
             }
 
-            const newUser = {phone: phone, username: username, password: password, r: 1, f: 1};
-            localStorage.setItem(username, JSON.stringify(newUser));
+            localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password, r: 1, f: 1}));
+            localStorage.setItem(phone, 'registered');
             alert('注册成功，请登录。');
             document.querySelector('.register-form').style.display = 'none';
             document.querySelector('.login-form').style.display = 'block';
         }
 
         function phoneExists(phone) {
-            return Object.keys(localStorage).includes(phone);
+            return localStorage.getItem(phone) === 'registered';
         }
 
         function validatePhone(phone) {
