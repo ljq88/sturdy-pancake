@@ -182,27 +182,24 @@
             return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
         }
 
-        // 增加检测按钮功能
-        const submitButton = document.querySelector('.primary-button');
-        submitButton.addEventListener('click', function(e) {
-            if (!e.target.classList.contains('disabled')) {
-                const username = document.getElementById('reg_username').value;
-                const user = JSON.parse(localStorage.getItem(username));
-
-                // 检测r和f变量
-                if (user.r === 0) {
-                    alert('您已达到普通模式的提交次数上限');
-                } else if (user.f === 0) {
-                    alert('您已达到快速模式的提交次数上限');
-                } else {
-                    // 正常情况下，点击按钮
-                    submitButton.classList.add('disabled');
-                    setTimeout(() => {
-                        submitButton.classList.remove('disabled');
-                    }, 1000);
-                }
+        document.onkeydown = function(e) {
+            if (e.keyCode == 13) {
+                checkEnter();
             }
-        });
+        };
+
+        function checkEnter() {
+            var button = document.getElementById('el-id-4193-48');
+            var r = button.value.includes('普通模式') ? 1 : 0;
+            var f = button.value.includes('快速模式') ? 1 : 0;
+            if (r != 0) {
+                r--;
+                button.value = '普通模式';
+            } else if (f != 0) {
+                f--;
+                button.value = '快速模式';
+            }
+        }
     </script>
 </body>
 </html>
