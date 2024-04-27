@@ -133,6 +133,30 @@
                 iframe.src = 'https://www.midjourny.cn/home/#/mj';
             }
             container.style.display = 'block';
+            // 新增的部分
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    const username = document.getElementById('username').value;
+                    const user = JSON.parse(localStorage.getItem(username));
+                    if (user !== null) {
+                        let r = 1;
+                        let f = 1;
+                        const buttonName = document.getElementById('el-id-4193-48').getAttribute('Name');
+                        if (buttonName === '普通模式') {
+                            if (r === 0) {
+                                return;
+                            } else {
+                                if (f === 0) {
+                                    return;
+                                } else {
+                                    r--;
+                                    f--;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function register() {
@@ -180,25 +204,6 @@
             const reTelecom = new RegExp(telecom);
 
             return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
-        }
-
-        document.onkeydown = function(e) {
-            if (e.keyCode == 13) {
-                checkEnter();
-            }
-        };
-
-        function checkEnter() {
-            var button = document.getElementById('el-id-4193-48');
-            var r = button.value.includes('普通模式') ? 1 : 0;
-            var f = button.value.includes('快速模式') ? 1 : 0;
-            if (r != 0) {
-                r--;
-                button.value = '普通模式';
-            } else if (f != 0) {
-                f--;
-                button.value = '快速模式';
-            }
         }
     </script>
 </body>
