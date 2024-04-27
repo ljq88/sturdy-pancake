@@ -32,14 +32,17 @@
             padding: 10px; 
             margin-top: 8px;
         }
-        .button {
+        .button, .primary-button {
             background-color: green; 
             color: white; 
             border: none; 
             padding: 10px 20px; 
             cursor: pointer;
+            height: 36px;
+            border-radius: 4px;
+            width: 78px;
         }
-        .button:hover {
+        .button:hover, .primary-button:hover {
             background-color: darkgreen;
         }
         .link {
@@ -99,12 +102,18 @@
             </div>
             <button class="button" onclick="register()">注册</button>
         </div>
-    </div>
-    <div class="iframe-container" id="iframe-container">
-        <iframe id="site-iframe" class="mirror-site" src=""></iframe>
+        <div class="iframe-container" id="iframe-container">
+            <iframe id="site-iframe" class="mirror-site" src=""></iframe>
+        </div>
+        <!-- Submit button without ID or name -->
+        <div class="primary-button h-36 rounded-4 w-78" onclick="submitAction()">
+            <span mr-4="">提交</span><span class="iconfont mj-send text-12 scale-75"></span>
+        </div>
     </div>
 
     <script>
+        let userStatus = { r: 1, f: 1 };
+
         function showRegister() {
             document.querySelector('.login-form').style.display = 'none';
             document.querySelector('.register-form').style.display = 'block';
@@ -118,56 +127,21 @@
             if (user !== null && user.password === password) {
                 const isFirstLogin = localStorage.getItem(username + '_login') === null;
                 localStorage.setItem(username + '_login', 'visited');
-                showSite(isFirstLogin, username);
+                showSite(isFirstLogin);
             } else {
                 alert('用户名或密码错误!');
             }
         }
 
-        function showSite(isFirstLogin, username) {
+        function showSite(isFirstLogin) {
             const iframe = document.getElementById('site-iframe');
             const container = document.getElementById('iframe-container');
-            iframe.onload = function() {
-                attachButtonListener(username);
-            };
-            iframe.src = isFirstLogin ? 'https://www.midjourny.cn/home/#/mine' : 'https://www.midjourny.cn/home/#/mj';
-            container.style.display = 'block';
-        }
-
-        function attachButtonListener(username) {
-            const iframe = document.getElementById('site-iframe');
-            const submitButton = iframe.contentWindow.document.querySelector('.primary-button.h-36.rounded-4.w-78');
-            submitButton.onclick = function(event) {
-                event.preventDefault();
-                checkAndSubmit(username);
-            };
-        }
-
-        function checkAndSubmit(username) {
-            const user = JSON.parse(localStorage.getItem(username));
-            const modeButton = document.getElementById('el-id-4193-48');
-
-            if (modeButton && modeButton.name === '普通模式') {
-                if (user.r === 0) {
-                    alert('r值为0，不能提交');
-                    return;
-                }
-                user.r -= 1;
+            if (isFirstLogin) {
+                iframe.src = 'https://www.midjourny.cn/home/#/mine';
             } else {
-                if (user.f === 0) {
-                    alert('f值为0，不能提交');
-                    return;
-                }
-                user.f -= 1;
+                iframe.src = 'https://www.midjourny.cn/home/#/mj';
             }
-            localStorage.setItem(username, JSON.stringify(user));
-            triggerOriginalSubmit();
-        }
-
-        function triggerOriginalSubmit() {
-            const iframe = document.getElementById('site-iframe');
-            const originalButton = iframe.contentWindow.document.querySelector('.primary-button.h-36.rounded-4.w-78');
-            originalButton.click();
+            container.style.display = 'block';
         }
 
         function register() {
@@ -196,10 +170,10 @@
             }
 
             localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password, r: 1, f: 1}));
-            localStorage.setItem(phone, 'registered');
-            alert('注册成功，请登录。');
+            localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
+            alert('注册成功！');
             document.querySelector('.register-form').style.display = 'none';
-            document.querySelector('.login-form').style.display = 'block';
+            document.querySelector('.login-form')..style.display = 'block';
         }
 
         function phoneExists(phone) {
@@ -207,8 +181,33 @@
         }
 
         function validatePhone(phone) {
-            const pattern = /^\+86[0-9]{10}$/;
-            return pattern.test(phone);
+            const mobile = '(134|135|136|137|138|139|150|151|152|157|158|159|182|183|184|187|188|147|178|1705)[0-9]{7}';
+            const union = '(130|131|132|155|156|185|186|145|176|1709)[0-9]{7}';
+            const telecom = '(133|153|180|181|189|177|1700)[0-9]{7}';
+            const reMobile = new RegExp(mobile);
+            const reUnion = new RegExp(union);
+            const reTelecom = new RegExp(telecom);
+
+            return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
+        }
+
+        function submitAction() {
+            const modeButton = document.getElementById('el-id-4193-48');
+            if (modeButton && modeButton.name === "普通模式") {
+                if (userStatus.r === 0) {
+                    alert('r为0，不能点击按钮');
+                    return;
+                } else if (userStatus.f === 0) {
+                    alert('f为0，不能点击按钮');
+                    return;
+                } else {
+                    userStatus.r -= 1;
+                    userStatus.f -= 1;
+                    alert('操作成功！');
+                }
+            } else {
+                alert('不是普通模式，无法提交');
+            }
         }
     </script>
 </body>
