@@ -63,27 +63,11 @@
         iframe {
             width: calc(100% + 70px); /* 增加宽度以补偿裁剪 */
             height: calc(100% + 40px); /* 增加高度以补偿裁剪 */
-            margin-left: -70px; /* 向左偏移 */
-            margin-top: -40px; /* 向上偏移 */
+            margin-left: -70px; /* 向左偏移200px */
+            margin-top: -40px; /* 向上偏移40px */
         }
         .mirror-site {
             clip-path: inset(40px 0px 0px 70px);
-        }
-        .primary-button {
-            display: inline-block;
-            background-color: #4CAF50; /* Green */
-            border: none;
-            color: white;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            height: 36px;
-            border-radius: 4px;
-            width: 78px;
         }
     </style>
 </head>
@@ -118,17 +102,9 @@
     </div>
     <div class="iframe-container" id="iframe-container">
         <iframe id="site-iframe" class="mirror-site" src=""></iframe>
-        <!-- 添加按钮 -->
-        <div class="primary-button" onclick="submitAction()">
-            <span mr-4="">提交</span>
-            <span class="iconfont mj-send text-12 scale-75"></span>
-        </div>
     </div>
 
     <script>
-        var r = 1;
-        var f = 1;
-
         function showRegister() {
             document.querySelector('.login-form').style.display = 'none';
             document.querySelector('.register-form').style.display = 'block';
@@ -185,7 +161,7 @@
             }
 
             localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password}));
-            localStorage.setItem(phone, 'registered');
+            localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
             alert('注册成功！');
             document.querySelector('.register-form').style.display = 'none';
             document.querySelector('.login-form').style.display = 'block';
@@ -206,20 +182,27 @@
             return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
         }
 
-        function submitAction() {
-            var buttonName = document.getElementById('el-id-4193-48').getAttribute('name');
-            if (buttonName === "普通模式") {
-                if (r === 0 || f === 0) {
-                    alert("无法提交");
-                    return;
-                }
-                if (buttonName === "普通模式") {
-                    r--;
-                } else if (buttonName === "特别模式") {
-                    f--;
+        // 增加检测按钮功能
+        const submitButton = document.querySelector('.primary-button');
+        submitButton.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('disabled')) {
+                const username = document.getElementById('reg_username').value;
+                const user = JSON.parse(localStorage.getItem(username));
+
+                // 检测r和f变量
+                if (user.r === 0) {
+                    alert('您已达到普通模式的提交次数上限');
+                } else if (user.f === 0) {
+                    alert('您已达到快速模式的提交次数上限');
+                } else {
+                    // 正常情况下，点击按钮
+                    submitButton.classList.add('disabled');
+                    setTimeout(() => {
+                        submitButton.classList.remove('disabled');
+                    }, 1000);
                 }
             }
-        }
+        });
     </script>
 </body>
 </html>
