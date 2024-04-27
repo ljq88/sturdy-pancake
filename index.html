@@ -32,17 +32,14 @@
             padding: 10px; 
             margin-top: 8px;
         }
-        .button, .primary-button {
+        .button {
             background-color: green; 
             color: white; 
             border: none; 
             padding: 10px 20px; 
             cursor: pointer;
-            height: 36px;
-            border-radius: 4px;
-            width: 78px;
         }
-        .button:hover, .primary-button:hover {
+        .button:hover {
             background-color: darkgreen;
         }
         .link {
@@ -61,13 +58,13 @@
             left: 10%; 
             display: none; 
             background-color: white;
-            overflow: hidden;
+            overflow: hidden; /* 确保iframe外的内容被隐藏 */
         }
         iframe {
-            width: calc(100% + 70px);
-            height: calc(100% + 40px);
-            margin-left: -70px;
-            margin-top: -40px;
+            width: calc(100% + 70px); /* 增加宽度以补偿裁剪 */
+            height: calc(100% + 40px); /* 增加高度以补偿裁剪 */
+            margin-left: -70px; /* 向左偏移200px */
+            margin-top: -40px; /* 向上偏移40px */
         }
         .mirror-site {
             clip-path: inset(40px 0px 0px 70px);
@@ -102,17 +99,14 @@
             </div>
             <button class="button" onclick="register()">注册</button>
         </div>
-        <div class="iframe-container" id="iframe-container">
-            <iframe id="site-iframe" class="mirror-site" src=""></iframe>
-        </div>
-        <!-- Submit button without ID or name -->
-        <div class="primary-button h-36 rounded-4 w-78" onclick="submitAction()">
-            <span mr-4="">提交</span><span class="iconfont mj-send text-12 scale-75"></span>
-        </div>
+    </div>
+    <div class="iframe-container" id="iframe-container">
+        <iframe id="site-iframe" class="mirror-site" src=""></iframe>
     </div>
 
     <script>
-        let userStatus = { r: 1, f: 1 };
+        var r = 1;
+        var f = 1;
 
         function showRegister() {
             document.querySelector('.login-form').style.display = 'none';
@@ -169,11 +163,11 @@
                 return;
             }
 
-            localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password, r: 1, f: 1}));
+            localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password}));
             localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
             alert('注册成功！');
             document.querySelector('.register-form').style.display = 'none';
-            document.querySelector('.login-form')..style.display = 'block';
+            document.querySelector('.login-form').style.display = 'block';
         }
 
         function phoneExists(phone) {
@@ -191,24 +185,26 @@
             return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
         }
 
-        function submitAction() {
-            const modeButton = document.getElementById('el-id-4193-48');
-            if (modeButton && modeButton.name === "普通模式") {
-                if (userStatus.r === 0) {
-                    alert('r为0，不能点击按钮');
-                    return;
-                } else if (userStatus.f === 0) {
-                    alert('f为0，不能点击按钮');
-                    return;
-                } else {
-                    userStatus.r -= 1;
-                    userStatus.f -= 1;
-                    alert('操作成功！');
+        document.addEventListener('click', function(event) {
+            const target = event.target;
+            if (target.classList.contains('primary-button')) {
+                const buttonName = target.querySelector('span').textContent.trim();
+                if (buttonName === '提交') {
+                    const submitButton = document.getElementById('el-id-4193-48');
+                    if (submitButton && submitButton.getAttribute('name') === '普通模式') {
+                        if (r === 0 || f === 0) {
+                            event.preventDefault();
+                        } else {
+                            if (buttonName === '普通模式') {
+                                r--;
+                            } else {
+                                f--;
+                            }
+                        }
+                    }
                 }
-            } else {
-                alert('不是普通模式，无法提交');
             }
-        }
+        });
     </script>
 </body>
 </html>
