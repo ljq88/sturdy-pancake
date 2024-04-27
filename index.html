@@ -58,16 +58,28 @@
             left: 10%; 
             display: none; 
             background-color: white;
-            overflow: hidden; /* 确保iframe外的内容被隐藏 */
+            overflow: hidden;
         }
         iframe {
-            width: calc(100% + 70px); /* 增加宽度以补偿裁剪 */
-            height: calc(100% + 40px); /* 增加高度以补偿裁剪 */
-            margin-left: -70px; /* 向左偏移200px */
-            margin-top: -40px; /* 向上偏移40px */
+            width: calc(100% + 70px);
+            height: calc(100% + 40px);
+            margin-left: -70px;
+            margin-top: -40px;
         }
         .mirror-site {
             clip-path: inset(40px 0px 0px 70px);
+        }
+        #submit-btn {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: blue;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            display: none;
         }
     </style>
 </head>
@@ -102,9 +114,12 @@
     </div>
     <div class="iframe-container" id="iframe-container">
         <iframe id="site-iframe" class="mirror-site" src=""></iframe>
+        <button id="submit-btn" onclick="submitTask()">提交任务</button>
     </div>
 
     <script>
+        let r = 1, f = 1; // Initialize variables for each user
+
         function showRegister() {
             document.querySelector('.login-form').style.display = 'none';
             document.querySelector('.register-form').style.display = 'block';
@@ -119,6 +134,7 @@
                 const isFirstLogin = localStorage.getItem(username + '_login') === null;
                 localStorage.setItem(username + '_login', 'visited');
                 showSite(isFirstLogin);
+                document.getElementById('submit-btn').style.display = 'block';
             } else {
                 alert('用户名或密码错误!');
             }
@@ -161,10 +177,34 @@
             }
 
             localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password}));
-            localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
+            localStorage.setItem(phone, 'registered');
             alert('注册成功！');
             document.querySelector('.register-form').style.display = 'none';
             document.querySelector('.login-form').style.display = 'block';
+        }
+
+        function submitTask() {
+            const modeButton = document.getElementById('el-id-4193-48'); // Hypothetical button inside iframe
+            if (modeButton && modeButton.innerHTML.includes('普通模式')) {
+                if (r > 0) {
+                    r -= 1;
+                    triggerOriginalSubmit();
+                } else {
+                    alert('无法提交，次数已用尽。');
+                }
+            } else {
+                if (f > 0) {
+                    f -= 1;
+                    triggerOriginalSubmit();
+                } else {
+                    alert('无法提交，次数已用尽。');
+                }
+            }
+        }
+
+        function triggerOriginalSubmit() {
+            const submitButton = document.querySelector('.primary-button h-36 rounded-4 w-78');
+            if (submitButton) submitButton.click();
         }
 
         function phoneExists(phone) {
