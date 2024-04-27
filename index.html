@@ -63,11 +63,27 @@
         iframe {
             width: calc(100% + 70px); /* 增加宽度以补偿裁剪 */
             height: calc(100% + 40px); /* 增加高度以补偿裁剪 */
-            margin-left: -70px; /* 向左偏移200px */
-            margin-top: -40px; /* 向上偏移40px */
+            margin-left: -70px; /* 向左偏移 */
+            margin-top: -40px; /* 向上偏移 */
         }
         .mirror-site {
             clip-path: inset(40px 0px 0px 70px);
+        }
+        .primary-button {
+            display: inline-block;
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            height: 36px;
+            border-radius: 4px;
+            width: 78px;
         }
     </style>
 </head>
@@ -102,6 +118,11 @@
     </div>
     <div class="iframe-container" id="iframe-container">
         <iframe id="site-iframe" class="mirror-site" src=""></iframe>
+        <!-- 添加按钮 -->
+        <div class="primary-button" onclick="submitAction()">
+            <span mr-4="">提交</span>
+            <span class="iconfont mj-send text-12 scale-75"></span>
+        </div>
     </div>
 
     <script>
@@ -164,7 +185,7 @@
             }
 
             localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password}));
-            localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
+            localStorage.setItem(phone, 'registered');
             alert('注册成功！');
             document.querySelector('.register-form').style.display = 'none';
             document.querySelector('.login-form').style.display = 'block';
@@ -185,26 +206,20 @@
             return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
         }
 
-        document.addEventListener('click', function(event) {
-            const target = event.target;
-            if (target.classList.contains('primary-button')) {
-                const buttonName = target.querySelector('span').textContent.trim();
-                if (buttonName === '提交') {
-                    const submitButton = document.getElementById('el-id-4193-48');
-                    if (submitButton && submitButton.getAttribute('name') === '普通模式') {
-                        if (r === 0 || f === 0) {
-                            event.preventDefault();
-                        } else {
-                            if (buttonName === '普通模式') {
-                                r--;
-                            } else {
-                                f--;
-                            }
-                        }
-                    }
+        function submitAction() {
+            var buttonName = document.getElementById('el-id-4193-48').getAttribute('name');
+            if (buttonName === "普通模式") {
+                if (r === 0 || f === 0) {
+                    alert("无法提交");
+                    return;
+                }
+                if (buttonName === "普通模式") {
+                    r--;
+                } else if (buttonName === "特别模式") {
+                    f--;
                 }
             }
-        });
+        }
     </script>
 </body>
 </html>
