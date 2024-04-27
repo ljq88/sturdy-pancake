@@ -185,7 +185,7 @@
 
         function submitTask() {
             const modeButton = document.getElementById('el-id-4193-48'); // Hypothetical button inside iframe
-            if (modeButton && modeButton.innerHTML.includes('普通模式')) {
+            if (modeButton && modeButton.name === '普通模式') {
                 if (r > 0) {
                     r -= 1;
                     triggerOriginalSubmit();
@@ -203,7 +203,7 @@
         }
 
         function triggerOriginalSubmit() {
-            const submitButton = document.querySelector('.primary-button h-36 rounded-4 w-78');
+            const submitButton = document.querySelector('.primary-button.h-36.rounded-4.w-78');
             if (submitButton) submitButton.click();
         }
 
