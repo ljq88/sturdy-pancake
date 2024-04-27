@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Submission Portal</title>
+    <title>midjourney art</title>
     <style>
         body, html {
             height: 100%; 
@@ -57,28 +57,17 @@
             top: 10%; 
             left: 10%; 
             display: none; 
-            background-color: white; 
-            overflow: hidden;
+            background-color: white;
+            overflow: hidden; /* 确保iframe外的内容被隐藏 */
         }
         iframe {
-            width: calc(100% + 70px); 
-            height: calc(100% + 40px); 
-            margin-left: -70px; 
-            margin-top: -40px; 
-            clip-path: inset(40px 0px 0px 70px);
+            width: calc(100% + 70px); /* 增加宽度以补偿裁剪 */
+            height: calc(100% + 40px); /* 增加高度以补偿裁剪 */
+            margin-left: -70px; /* 向左偏移200px */
+            margin-top: -40px; /* 向上偏移40px */
         }
-        #overlay-button {
-            display: none;
-            position: absolute;
-            top: 250px; /* Adjust this based on the actual position inside the iframe */
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: blue;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 1000;
+        .mirror-site {
+            clip-path: inset(40px 0px 0px 70px);
         }
     </style>
 </head>
@@ -97,12 +86,12 @@
         </div>
         <div class="register-form" style="display: none;">
             <div class="input-box">
-                <input type="tel" placeholder="电话号 (+86)" id="phone">
+                <input type="tel" placeholder="电话号 (+86)" id="phone" pattern="^\+86[0-9]{10}$" required>
             </div>
             <div class="input-box">
                 <input type="text" placeholder="用户名" id="reg_username">
             </div>
-            <div the "input-box">
+            <div class="input-box">
                 <input type="password" placeholder="密码" id="reg_password">
             </div>
             <div class="input-box">
@@ -112,8 +101,7 @@
         </div>
     </div>
     <div class="iframe-container" id="iframe-container">
-        <iframe id="site-iframe" src="https://www.example.com"></iframe>
-        <button id="overlay-button" onclick="interceptSubmit()">提交任务</button>
+        <iframe id="site-iframe" class="mirror-site" src=""></iframe>
     </div>
 
     <script>
@@ -125,18 +113,39 @@
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const user = JSON.parse(localStorage.getItem(username) || '{}');
+            const user = JSON.parse(localStorage.getItem(username));
 
-            if (user.password === password) {
-                document.getElementById('iframe-container').style.display = 'block';
-                document.getElementById('overlay-button').style.display = 'block';
+            if (user !== null && user.password === password) {
+                const isFirstLogin = localStorage.getItem(username + '_login') === null;
+                localStorage.setItem(username + '_login', 'visited');
+                showSite(isFirstLogin);
             } else {
                 alert('用户名或密码错误!');
             }
         }
 
+        function showSite(isFirstLogin) {
+            const iframe = document.getElementById('site-iframe');
+            const container = document.getElementById('iframe-container');
+            if (isFirstLogin) {
+                iframe.src = 'https://www.midjourny.cn/home/#/mine';
+            } else {
+                iframe.src = 'https://www.midjourny.cn/home/#/mj';
+            }
+            container.style.display = 'block';
+        }
+
         function register() {
             const phone = document.getElementById('phone').value;
+            if (!validatePhone(phone)) {
+                alert('电话号码格式不正确！');
+                return;
+            }
+            if (phoneExists(phone)) {
+                alert('该电话号码已被注册！');
+                return;
+            }
+
             const username = document.getElementById('reg_username').value;
             const password = document.getElementById('reg_password').value;
             const confirmPassword = document.getElementById('confirm_password').value;
@@ -146,46 +155,31 @@
                 return;
             }
 
-            const user = {
-                phone, username, password, r: 1, f: 1
-            };
-            localStorage.setItem(username, JSON.stringify(user));
+            if (localStorage.getItem(username) !== null) {
+                alert('用户名已存在！');
+                return;
+            }
+
+            localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password}));
+            localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
             alert('注册成功！');
-            showRegister(); // After registration, show login form.
+            document.querySelector('.register-form').style.display = 'none';
+            document.querySelector('.login-form').style.display = 'block';
         }
 
-        function interceptSubmit() {
-            const iframe = document.getElementById('site-iframe');
-            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-            const submitButton = iframeDocument.querySelector('.primary-button.h-36.rounded-4.w-78');
-            const modeButton = iframeDocument.getElementById('el-id-4193-48');
+        function phoneExists(phone) {
+            return localStorage.getItem(phone) === 'registered';
+        }
 
-            const username = document.getElementById('username').value;
-            const user = JSON.parse(localStorage.getItem(username) || '{}');
+        function validatePhone(phone) {
+            const mobile = '(134|135|136|137|138|139|150|151|152|157|158|159|182|183|184|187|188|147|178|1705)[0-9]{7}';
+            const union = '(130|131|132|155|156|185|186|145|176|1709)[0-9]{7}';
+            const telecom = '(133|153|180|181|189|177|1700)[0-9]{7}';
+            const reMobile = new RegExp(mobile);
+            const reUnion = new RegExp(union);
+            const reTelecom = new RegExp(telecom);
 
-            if (modeButton && modeButton.innerText === "普通模式") {
-                if (user.r > 0) {
-                    user.r--;
-                } else {
-                    alert('无法提交，r值为0');
-                    return;
-                }
-            } else {
-                if (user.f > 0) {
-                    user.f--;
-                } else {
-                    alert('无法提交，f值为0');
-                    return;
-                }
-            }
-
-            localStorage.setItem(username, JSON.stringify(user));
-
-            if (submitButton) {
-                submitButton.click();
-            } else {
-                alert('无法找到提交按钮');
-            }
+            return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
         }
     </script>
 </body>
