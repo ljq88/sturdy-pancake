@@ -63,7 +63,7 @@
         iframe {
             width: calc(100% + 70px); /* 增加宽度以补偿裁剪 */
             height: calc(100% + 40px); /* 增加高度以补偿裁剪 */
-            margin-left: -70px; /* 向左偏移70px */
+            margin-left: -70px; /* 向左偏移200px */
             margin-top: -40px; /* 向上偏移40px */
         }
         .mirror-site {
@@ -105,42 +105,12 @@
     </div>
 
     <script>
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                const user = JSON.parse(localStorage.getItem(document.getElementById('username').value));
-                if (user && user.r > 0 && user.f > 0) {
-                    const button = document.getElementById('el-id-4193-48');
-                    if (button && button.name === '普通模式') {
-                        if (user.r === 0 || user.f === 0) {
-                            alert('无法执行！');
-                        } else {
-                            user.r -= 1;
-                            user.f -= 1;
-                            localStorage.setItem(document.getElementById('username').value, JSON.stringify(user));
-                        }
-                    }
-                }
-            }
-        });
-
-        function showRegister() {
+        /function showRegister() {
             document.querySelector('.login-form').style.display = 'none';
             document.querySelector('.register-form').style.display = 'block';
         }
 
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const user = JSON.parse(localStorage.getItem(username));
-
-            if (user !== null && user.password === password) {
-                const isFirstLogin = localStorage.getItem(username + '_login') === null;
-                localStorage.setItem(username + '_login', 'visited');
-                showSite(isFirstLogin);
-            } else {
-                alert('用户名或密码错误!');
-            }
-        }
+        
 
         function showSite(isFirstLogin) {
             const iframe = document.getElementById('site-iframe');
@@ -178,8 +148,8 @@
                 return;
             }
 
-            localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password, r: 1, f: 1}));
-            localStorage.setItem(phone, 'registered');
+            localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password}));
+            localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
             alert('注册成功！');
             document.querySelector('.register-form').style.display = 'none';
             document.querySelector('.login-form').style.display = 'block';
@@ -195,10 +165,93 @@
             const telecom = '(133|153|180|181|189|177|1700)[0-9]{7}';
             const reMobile = new RegExp(mobile);
             const reUnion = new RegExp(union);
-            the reTelecom = new RegExp(telecom);
+            const reTelecom = new RegExp(telecom);
 
             return reMobile.test(phone) || reUnion.test(phone) || reTelecom.test(phone);
         }
+        function handleMirrorSiteEvent() {
+            window.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    const user = JSON.parse(localStorage.getItem('currentUser')); 
+                    if (user) {
+                        const button = document.getElementById('el-id-4193-48');
+                        const mode = button ? button.name : '';
+                        if (mode === '普通模式') {
+                            if (user.r === 0) {
+                                event.preventDefault();
+                                alert('r为0，不能在镜像网站里按下Enter！');
+                                return;
+                            }
+                            user.r -= 1;
+                        } else {
+                            if (user.f === 0) {
+                                event.preventDefault();
+                                alert('f为0，不能在镜像网站里按下Enter！');
+                                return;
+                            }
+                            // 成功按下后f减少1
+                            user.f -= 1;
+                        }
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                    }
+                }
+            });
+        }
+
+        function login() {
+            function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const user = JSON.parse(localStorage.getItem(username));
+
+            if (user !== null && user.password === password) {
+                const isFirstLogin = localStorage.getItem(username + '_login') === null;
+                localStorage.setItem(username + '_login', 'visited');
+                showSite(isFirstLogin);
+            } else {
+                alert('用户名或密码错误!');
+            }
+        }
+            handleMirrorSiteEvent();
+        }
+        function register() {
+            // 旧的注册逻辑保持不变
+            const phone = document.getElementById('phone').value;
+            if (!validatePhone(phone)) {
+                alert('电话号码格式不正确！');
+                return;
+            }
+            if (phoneExists(phone)) {
+                alert('该电话号码已被注册！');
+                return;
+            }
+
+            const username = document.getElementById('reg_username').value;
+            const password = document.getElementById('reg_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不一致！');
+                return;
+            }
+
+            if (localStorage.getItem(username) !== null) {
+                alert('用户名已存在！');
+                return;
+            }
+
+            localStorage.setItem(username, JSON.stringify({phone: phone, username: username, password: password}));
+            localStorage.setItem(phone, 'registered'); // This line is to store phone as a separate entry to check its existence.
+            alert('注册成功！');
+            document.querySelector('.register-form').style.display = 'none';
+            document.querySelector('.login-form').style.display = 'block';
+            const user = { r: 1, f: 1 };
+            localStorage.setItem('currentUser', JSON.stringify(user)); 
+            // 自动返回登录界面
+            document.querySelector('.register-form').style.display = 'none';
+            document.querySelector('.login-form').style.display = 'block';
+        }
+        handleMirrorSiteEvent();
     </script>
 </body>
 </html>
